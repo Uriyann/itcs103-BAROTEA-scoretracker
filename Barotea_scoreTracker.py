@@ -89,13 +89,12 @@ def formula_excel():
 
     rows = ws.max_row
 
-    formula_cell = f"B{rows + 2}"
-    ws[formula_cell] = f"=AVERAGE(B2:B{rows})"
-
     ws[f"A{rows + 2}"] = "Average"
+    ws[f"B{rows + 2}"] = f"=AVERAGE(B2:B{rows})"
 
     wb.save("student_scores.xlsx")
     print("awefwf")
+
 
 # Format Fixer Function
 def format_excel():
