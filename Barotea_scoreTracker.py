@@ -46,8 +46,8 @@ def save_info_to_excel():
     
     wb.save("student_scores.xlsx")
 
+    formula_excel()
     format_excel()
-    show_data()
 
     username_entry.delete(0, END)
     score_entry.delete(0, END)
@@ -79,7 +79,6 @@ def update_info_to_excel():
                     row[2].value = "You Need To Study More"
                 wb.save("student_scores.xlsx")
                 formula_excel()
-                show_data()
                 messagebox.showinfo(title="Success", message="Score Updated Successfully.")
                 return True
 
@@ -98,6 +97,11 @@ def formula_excel():
     wb = load_workbook("student_scores.xlsx")
     ws = wb["Userdata"]
 
+    for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
+        if row[0].value == "Average":
+            ws.delete_rows(row[0].row, 1)
+            break
+
     rows = ws.max_row
 
     ws[f"A{rows + 2}"] = "Average"
@@ -105,7 +109,6 @@ def formula_excel():
 
     wb.save("student_scores.xlsx")
     print("awefwf")
-    pass
 
 # Format Fixer Function
 def format_excel():
@@ -123,20 +126,6 @@ def format_excel():
         ws.column_dimensions[col_letter].width = max_length + 4
         
     wb.save("student_scores.xlsx")
-
-# New Window Data Shower Function
-def show_data():
-    wb = load_workbook("student_scores.xlsx")
-    ws = wb["Userdata"]
-
-    data_window = Toplevel(window)
-    data_window.geometry("200x200")
-    data_window.title("Stored User Data")
-
-    for i, row in enumerate(ws.iter_rows(values_only=True)):
-        for j, value in enumerate(row):
-            label = Label(data_window, text=value, width=1)
-            label.grid(row=i, column=j)
 
 # ================= DEBUGGERS ================= #
 # Userdata Debugger
