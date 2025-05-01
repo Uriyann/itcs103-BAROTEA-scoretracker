@@ -31,9 +31,15 @@ def save_info_to_excel():
         wb = Workbook()
         ws = wb.active
         ws.title = "Userdata"
-        ws.append(["Name", "Score"])
+        ws.append(["Name", "Score", "Remarks"])
+
+    if score >= 75 and score <= 100:
+        ws.append([name, score, "Passed"])
+    elif score >= 50 and score < 75:
+        ws.append([name, score, "Failed"])
+    else:
+        ws.append([name, score, "You Need To Study More"])
     
-    ws.append([name, score])
     wb.save("student_scores.xlsx")
 
     formula_excel()
@@ -77,6 +83,14 @@ def update_info_to_excel():
         print(f"Error updating score: {e}")
         return False
 
+# Remarks Function
+def userdata_remarks():
+    if not user_data_debugger():
+        return
+
+    score = int(score_entry.get())
+
+    pass
 
 
 # Formula Fixer Function
@@ -94,7 +108,7 @@ def formula_excel():
 
     wb.save("student_scores.xlsx")
     print("awefwf")
-
+    pass
 
 # Format Fixer Function
 def format_excel():
