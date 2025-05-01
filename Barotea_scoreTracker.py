@@ -9,10 +9,11 @@ from openpyxl.utils import get_column_letter
 # ================= MAIN WINDOW SCORE TRACKER ================= #
 window = Tk()
 window.title("Score Tracker")
-window.geometry("500x500")
+window.geometry("350x350")
+window.resizable(False, False)
 
 # ================= FUNCTIONS ================= #
-# Saving The Info To Excel
+# Saving The Info To Excel Function
 def save_info_to_excel():
     if not user_data_debugger():
         return
@@ -35,18 +36,18 @@ def save_info_to_excel():
 
     if score >= 75 and score <= 100:
         ws.append([name, score, "Passed"])
+        messagebox.showinfo(title="Success", message="You Passed The Exam.")
     elif score >= 50 and score < 75:
         ws.append([name, score, "Failed"])
+        messagebox.showinfo(title="Success", message="You Failed The Exam.")
     else:
         ws.append([name, score, "You Need To Study More"])
+        messagebox.showinfo(title="Success", message="Get Good On Your Studies.")
     
     wb.save("student_scores.xlsx")
 
-    formula_excel()
     format_excel()
     show_data()
-
-    messagebox.showinfo(title="Success", message="Data Saved Successfully.")
 
     username_entry.delete(0, END)
     score_entry.delete(0, END)
@@ -70,6 +71,12 @@ def update_info_to_excel():
             cell_name = row[0].value
             if cell_name and cell_name.strip().lower() == name:
                 row[1].value = score
+                if score >= 75 and score <= 100:
+                    row[2].value = "Passed"
+                elif score >= 50 and score < 75:
+                    row[2].value = "Failed"
+                else:
+                    row[2].value = "You Need To Study More"
                 wb.save("student_scores.xlsx")
                 formula_excel()
                 show_data()
@@ -82,16 +89,6 @@ def update_info_to_excel():
     except Exception as e:
         print(f"Error updating score: {e}")
         return False
-
-# Remarks Function
-def userdata_remarks():
-    if not user_data_debugger():
-        return
-
-    score = int(score_entry.get())
-
-    pass
-
 
 # Formula Fixer Function
 def formula_excel():
