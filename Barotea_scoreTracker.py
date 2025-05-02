@@ -1,16 +1,19 @@
 import re
+from PIL import Image
 from tkinter import messagebox
-from tkinter import *
+from customtkinter import *
+import customtkinter as ctk
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
 
-# ================= MAIN WINDOW SCORE TRACKER ================= #
-window = Tk()
+""" ================= MAIN WINDOW SCORE TRACKER ================= """
+window = CTk()
 window.title("Score Tracker")
-window.geometry("350x350")
+window.geometry("450x450")
 window.resizable(False, False)
+ctk.set_appearance_mode("dark")
 
 # ================= FUNCTIONS ================= #
 # Saving The Info To Excel Function
@@ -43,10 +46,8 @@ def save_info_to_excel():
     else:
         ws.append([name, score, "You Need To Study More"])
         messagebox.showinfo(title="Success", message="Get Good On Your Studies.")
-    
-    wb.save("student_scores.xlsx")
 
-    formula_excel()
+    wb.save("student_scores.xlsx")
     format_excel()
 
     username_entry.delete(0, END)
@@ -63,31 +64,35 @@ def update_info_to_excel():
     name = username_entry.get().strip().lower()
     score = int(score_entry.get())
 
-    try:
-        wb = load_workbook("student_scores.xlsx")
-        ws = wb["Userdata"]
+    wb = load_workbook("student_scores.xlsx")
+    ws = wb["Userdata"]
 
-        for row in ws.iter_rows(min_row=2):
-            cell_name = row[0].value
-            if cell_name and cell_name.strip().lower() == name:
-                row[1].value = score
-                if score >= 75 and score <= 100:
-                    row[2].value = "Passed"
-                elif score >= 50 and score < 75:
-                    row[2].value = "Failed"
-                else:
-                    row[2].value = "You Need To Study More"
-                wb.save("student_scores.xlsx")
-                formula_excel()
-                messagebox.showinfo(title="Success", message="Score Updated Successfully.")
-                return True
+    for row in ws.iter_rows(min_row=2):
+        cell_name = row[0].value
+        if cell_name and cell_name.strip().lower() == name:
+            row[1].value = score
+            if score >= 75 and score <= 100:
+                row[2].value = "Passed"
+            elif score >= 50 and score < 75:
+                row[2].value = "Failed"
+            else:
+                row[2].value = "You Need To Study More"
+            wb.save("student_scores.xlsx")
 
-        messagebox.showerror(title="Error", message="User not found.")
-        return False
+            messagebox.showinfo(title="Success", message="Score Updated Successfully.")
+            return True
 
-    except Exception as e:
-        print(f"Error updating score: {e}")
-        return False
+    messagebox.showerror(title="Error", message="User not found.")
+    return False
+
+
+# Show Data Function
+def show_data_excel():
+    wb = load_workbook("student_scores.xlsx")
+    ws = wb["Userdata"]
+
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        print(row)
 
 # Formula Fixer Function
 def formula_excel():
@@ -97,15 +102,9 @@ def formula_excel():
     wb = load_workbook("student_scores.xlsx")
     ws = wb["Userdata"]
 
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
-        if row[0].value == "Average":
-            ws.delete_rows(row[0].row, 1)
-            break
+    for row in ws.iter_rows(min_row=2):
+        ws.cell(row=row[0].row, column=2, value=f'=AVERAGE(B{row[0].row}:B{row[0].row+1})')
 
-    rows = ws.max_row
-
-    ws[f"A{rows + 2}"] = "Average"
-    ws[f"B{rows + 2}"] = f"=AVERAGE(B2:B{rows})"
 
     wb.save("student_scores.xlsx")
     print("awefwf")
@@ -165,11 +164,11 @@ def validate_score_int():
             return True
         
         else:
-            messagebox.showerror(title="Error", message="Please enter a score between 0 and 100.")
+            messagebox.showerror(title="Error", message="Please enter a valid score.")
             return False
         
     except ValueError:
-        messagebox.showerror(title="Error", message="Please enter a valid score.")
+        messagebox.showerror(title="Error", message="Please enter a real number.")
         return False
 
 # ================= ENTRY EVENTS ================= #
@@ -193,43 +192,54 @@ def score_on_leave(event):
 def user_handle_enter(event):
     if not save_info_to_excel():
         return
+    
+
 
 # ================= MAIN FRAMES ================= #
-main_frame = Frame(window)
-main_frame.pack()
+main_frame = CTkFrame(window, border_width= 3, corner_radius= 15)
+main_frame.place(rely=0.5, relx=0.5, anchor=CENTER)
 
-# ================= USER INFORMATION FRAME ================= #
-stundet_info_frame = LabelFrame(main_frame, text="User Information", font= ("times new roman", 20, "bold"))
-stundet_info_frame.grid(row=0, column=0, sticky= NSEW, padx=10, pady=10)
-
+background_image = Image.open(r".\588ee4b393c082b8422e7307e0ece441.png")
+bg_img = CTkImage(light_image=background_image, dark_image=background_image, size=(90, 90))
+bg_label = CTkLabel(main_frame, image=bg_img, text="")
+bg_label.grid(row=0, column=0, sticky="n", pady= 15, padx= 15)
 
 # ================= WIDGETS ================= #
-username_label = Label(stundet_info_frame, text="Student Name", font=("Arial", 12, "bold"))
-username_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+title_label = CTkLabel(main_frame, text= "User Score Tracker", font= ("Times New Roman bold", 35))
+title_label.grid(row=1, column=0, sticky="n", pady= 5, padx= 15)
 
-username_entry = Entry(stundet_info_frame, font=("Arial", 12))
-username_entry.grid(row=1, column=0, sticky="nwe", padx=10, pady=5)
-username_entry.insert(0, "Name")
+username_label = CTkLabel(main_frame, text="Student Name:", font=("Arial", 18, "bold"))
+username_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+
+username_entry = CTkEntry(main_frame, font=("Arial", 18), border_width=0, placeholder_text="Name", height= 10, width= 10, fg_color= "transparent", bg_color= "transparent")
+username_entry.grid(row=3, column=0, sticky="nwe", padx=10)
 username_entry.bind("<FocusIn>", username_on_click)
 username_entry.bind("<FocusOut>", username_on_leave)
 username_entry.bind("<Return>", user_handle_enter)
 
-score_label = Label(stundet_info_frame, text="Student Score", font=("Arial", 12, "bold"))
-score_label.grid(row=2, column=0, sticky="w", padx=10, pady=10)
+user_line = CTkFrame(main_frame, width=300, height=3)
+user_line.grid(row=4, column=0, sticky= S)
 
-score_entry = Entry(stundet_info_frame, font=("Arial", 12))
-score_entry.grid(row=3, column=0, sticky="nwe", padx=10)
-score_entry.insert(0, "Score")
+score_label = CTkLabel(main_frame, text="Student Score:", font=("Arial", 18, "bold"))
+score_label.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+score_entry = CTkEntry(main_frame, font=("Arial", 18), border_width=0, placeholder_text="Score", height= 10, width= 10, fg_color= "transparent", bg_color= "transparent")
+score_entry.grid(row=6, column=0, sticky="nwe", padx=10)
 score_entry.bind("<FocusIn>", score_on_click)
 score_entry.bind("<FocusOut>", score_on_leave)
 score_entry.bind("<Return>", user_handle_enter)
 
-save_button = Button(stundet_info_frame, text="Save", font=("Arial", 12), width=7, command=save_info_to_excel)
-save_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
+score_line = CTkFrame(main_frame, width=300, height=3)
+score_line.grid(row=7, column=0, sticky= S)
 
-update_button = Button(stundet_info_frame, text="Update", font=("Arial", 12), width=7, command=update_info_to_excel)
-update_button.grid(row=4, column=0, padx=20, pady=10, sticky="e")
+save_button = CTkButton(main_frame, text="Save", font=("Arial", 15), width=13, command=save_info_to_excel)
+save_button.grid(row=8, column=0, padx=20, pady=20, sticky="w")
 
+update_button = CTkButton(main_frame, text="Update", font=("Arial", 15), width=13, command=update_info_to_excel)
+update_button.grid(row=8, column=0, padx=20, pady=20, sticky="e")
+
+show_data = CTkButton(main_frame, text="Show Data", font=("Arial", 15), width=13, command=show_data_excel)
+show_data.grid(row=8, column=0, padx=20, pady=20)
 
 # ================= WINDOW SCORE TRACKER STARTER ================= #
 window.mainloop()
